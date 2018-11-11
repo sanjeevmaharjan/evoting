@@ -1,9 +1,23 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.4.24;
 
 contract Election {
-    string public candidate;
+    struct Candidate {
+        uint id;
+        string name;
+        uint voteCount;
+    }
+
+    // Fetch Candidate [key => value]
+    mapping(uint => Candidate) public candidates;
+    uint public candCount;
 
     function Election() public {
-        candidate = "Prakash Aryal";
+        addCandidate("Test1");
+        addCandidate("Test2");
+    }
+
+    function addCandidate(string _name) private {
+        candCount++;
+        candidates[candCount] = Candidate(candCount, _name, 0);
     }
 }
