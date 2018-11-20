@@ -8,10 +8,10 @@
 /* ================================
 Imports
 ================================= */
-@import url('assets/css/font-awesome.min.css');
-@import url('assets/css/simpletextrotator.css');
-@import url('assets/css/overwrite.css');
-@import url('assets/css/animate.css');
+@import url('font-awesome.min.css');
+@import url('simpletextrotator.css');
+@import url('overwrite.css');
+@import url('animate.css');
 
 /* ================================
 General
@@ -250,10 +250,10 @@ Parallax
 ============================= */
 
 #parallax1{
-	background-image: url(assets//img/parallax/1.jpg);
+	background-image: url(../img/parallax/1.jpg);
 }
 #parallax2{
-	background-image: url(assets//img/parallax/2.jpg);
+	background-image: url(../img/parallax/2.jpg);
 }
 
 
