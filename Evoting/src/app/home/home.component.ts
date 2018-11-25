@@ -7,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
+  images = [1, 2, 3].map((x) => `https://localhost:4200/assets/img/bgslides/${x}.jpg`);
+
   constructor() { }
 
   ngOnInit() {
