@@ -12,4 +12,7 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
   }
 
+  public submit(): void {
+    console.log('submit button clicked ');
+  }
 }
