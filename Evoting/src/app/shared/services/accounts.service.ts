@@ -7,7 +7,9 @@ import Web3 from 'web3';
 import { Observable, bindNodeCallback, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class AccountsService {
 
     constructor(@Inject(WEB3) private web3: Web3) { }

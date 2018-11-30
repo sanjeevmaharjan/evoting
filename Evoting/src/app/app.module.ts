@@ -11,6 +11,7 @@ import { LoginComponent } from './login/login.component';
 import { VoteComponent } from './user/vote/vote.component';
 import { ResultsComponent } from './user/results/results.component';
 import { RegisterComponent } from './register/register.component';
+import { AccountsService } from './shared/services/accounts.service';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,7 @@ import { RegisterComponent } from './register/register.component';
     AppRoutingModule,
     NgbModule
   ],
-  providers: [],
+  providers: [AccountsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
