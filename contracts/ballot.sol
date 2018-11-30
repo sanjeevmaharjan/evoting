@@ -6,31 +6,31 @@ import "./voting.sol";
 contract Ballot is Owned, Voting {
 
     struct Candidate {
-        string name;
+        bytes16 name;
         uint voteCount;
     }
 
     mapping(uint => Candidate) public candidates;
-    uint candidatesCount;
+    uint public candidatesCount;
 
     /// Create a new ballot
     constructor() public {
-        addCandidate(1, "Prakash Aryal");
-        addCandidate(2, "Prajin Shrestha");
+        addCandidate(0, "Prakash Aryal");
+        addCandidate(1, "Prajin Shrestha");
     }
     
-    function addCandidate(uint id, string name) private onlyCreator {
+    function addCandidate(uint id, bytes16 name) private onlyCreator {
         candidates[id] = Candidate(name, 0);
         candidatesCount++;
     }
 
     /// Create a voter
-    function giveRightToVote(address toVoter) onlyCreator public {
+    function giveRightToVote(address toVoter) public onlyCreator payable {
         addVoter(toVoter);
     }
 
     /// Give a single vote
-    function vote(uint voteTo) OnlyValidCandidate(voteTo) public {
+    function vote(uint voteTo) public OnlyValidCandidate(voteTo) payable {
         /// Check if canVote and then mark as voted.
         voted(msg.sender);
         candidates[voteTo].voteCount++;

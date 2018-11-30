@@ -5,8 +5,8 @@ contract Voting {
         bool voted;
     }
     
-    mapping(address => Voter) voters;
-    address[] votersAddress;
+    mapping(address => Voter) public voters;
+    address[] public votersAddress;
     
     modifier canVote() {
         Voter storage voter = voters[msg.sender];

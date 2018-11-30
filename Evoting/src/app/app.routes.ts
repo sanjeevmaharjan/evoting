@@ -11,5 +11,6 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'vote', component: VoteComponent },
     { path: 'results', component: ResultsComponent },
-    { path: 'register', component: RegisterComponent }
+    { path: 'register', component: RegisterComponent },
+    { path: 'admin', loadChildren: './admin/admin.module#AdminModule'}
 ];

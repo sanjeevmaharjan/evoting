@@ -12,6 +12,7 @@ import { VoteComponent } from './user/vote/vote.component';
 import { ResultsComponent } from './user/results/results.component';
 import { RegisterComponent } from './register/register.component';
 import { AccountsService } from './shared/services/accounts.service';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
