@@ -13,6 +13,8 @@ export class HeaderComponent implements OnInit {
     'assets/img/bgslides/3.jpg'
   ];
 
+  public isCollapsed = false;
+
   constructor() { }
 
   ngOnInit() {

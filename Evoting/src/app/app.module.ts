@@ -10,6 +10,7 @@ import { FooterComponent } from './shared/footer/footer.component';
 import { LoginComponent } from './login/login.component';
 import { VoteComponent } from './user/vote/vote.component';
 import { ResultsComponent } from './user/results/results.component';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { ResultsComponent } from './user/results/results.component';
     FooterComponent,
     LoginComponent,
     VoteComponent,
-    ResultsComponent
+    ResultsComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,

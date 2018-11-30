@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity >=0.4.22 <0.6.0;
 
 import "./owned.sol";
 import "./voting.sol";
@@ -6,12 +6,11 @@ import "./voting.sol";
 contract Ballot is Owned, Voting {
 
     struct Candidate {
-        string name;
+        bytes16 name;
         uint voteCount;
     }
 
-    mapping(uint => Candidate) candidates;
-    uint[] candidateId;
+    Candidate[] candidates;
 
     /// Create a new ballot
     constructor() public {
@@ -19,7 +18,7 @@ contract Ballot is Owned, Voting {
         addCandidate(2, "Prajin Shrestha");
     }
     
-    function addCandidate(uint id, string name) private onlyCreator {
+    function addCandidate(uint id, bytes16 name) private onlyCreator {
         candidates[id] = Candidate(name, 0);
     }
 
@@ -36,9 +35,8 @@ contract Ballot is Owned, Voting {
     }
     
     modifier OnlyValidCandidate(uint id) {
-        Candidate storage cand = candidates[id];
-        bytes memory name = bytes(cand.name);
-        require(name.length > 0);
+        Candidate memory cand = candidates[id];
+        require(cand.name.length > 0, "Must be a valid Candidate.");
         _;
     }
     
