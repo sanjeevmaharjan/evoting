@@ -1,4 +1,4 @@
-<div class="navbar">
+<!-- <div class="navbar">
   <ul class="navbar-nav">
     <li class="nav-item">
       <a class="nav-link" routerLink="register">Register</a>
@@ -7,7 +7,7 @@
       <a class="nav-link" routerLink="login">Login</a>
     </li>
   </ul>
-</div>
+</div> -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
   <a class="navbar-brand" href="#"><strong>E-Voting</strong></a>
   <button class="navbar-toggler" type="button" (click)="isCollapsed = !isCollapsed" aria-expanded="true" aria-controls="navbarNav">
@@ -18,8 +18,17 @@
       <li class="nav-item active">
         <a class="nav-link" routerLink="home">Home <span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link" routerLink="login">Login</a>
+      </li> -->
+      <li class="nav-item" *ngIf="isLoggedIn">
+        <a class="nav-link" routerLink="vote">Vote</a>
+      </li>
+      <li class="nav-item" *ngIf="isLoggedIn">
+        <a class="nav-link" routerLink="results">Results</a>
+      </li>
+      <li class="nav-item" *ngIf="isAdmin">
+        <a class="nav-link" routerLink="admin/addVoter">Add Voter</a>
       </li>
     </ul>
   </div>

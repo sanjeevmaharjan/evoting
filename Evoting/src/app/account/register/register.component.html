@@ -1,0 +1,31 @@
+<form>
+  <div class="form-group">
+    <label for="name"></label>
+    <input type="text" class="form-control" id="name" aria-describedby="nameHelp" placeholder="Enter your Name">
+    <small id="nameHelp" class="form-text text-muted">Your Full Name.</small>
+  </div>
+
+  <select type="number" [(ngModel)]="accountOption" name="accountOption">
+    <option *ngFor="let opt of availableAccountOptions" [ngValue]="opt">{{opt}}</option>
+  </select>
+
+  <!-- Account Options -->
+  <div class="form-group" *ngIf="byAccount()">
+    <label for="account">Account</label>
+    <input type="text" class="form-control" id="account" aria-describedby="accountHelp" placeholder="Enter your Account Address">
+    <small id="accountHelp" class="form-text text-muted">We'll never share your account address with anyone else.</small>
+  </div>
+
+  <div class="form-group" *ngIf="byCreation()">
+    
+  </div>
+
+  <!-- End Register Option-->
+
+  <div class="form-group">
+    <label for="primarykey">Voter's Public key</label>
+    <input type="text" class="form-control" id="primarykey" placeholder="Voter's Public Key">
+  </div>
+  
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
