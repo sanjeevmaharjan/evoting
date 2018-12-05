@@ -1,9 +1,9 @@
 <div class="container">
   <div class="row">
-    <div *ngFor="let candidate of candidates" class="imgContainer col-4">
+    <div *ngFor="let candidate of candidates" class="col-4">
       <a (click)="vote(candidate.id)">
         <div>
-          <img src="assets\images\{{candidate.id}}.jpg" width="550px" height="400px" />
+          <img src="assets\images\{{candidate.id}}.jpg" width="200px" height="200px" />
         </div>
 
         <div class="caption">

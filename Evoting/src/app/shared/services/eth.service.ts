@@ -4,7 +4,7 @@ import * as TruffleContract from 'truffle-contract';
 import { Candidate } from '../models/candidate.model';
 declare let require: any;
 declare let window: any;
-let tokenAbi = require('../../../../../build/contracts/Ballot.json');
+const tokenAbi = require('../../../../../build/contracts/Ballot.json');
 @Injectable({
   providedIn: 'root'
 })
@@ -22,11 +22,10 @@ export class EthService {
     window.web3 = new Web3(this.web3Provider);
 
     // set default account
-    window.web3.eth.defaultAccount = window.web3.eth.accounts[0];
+    window.web3.eth.defaultAccount = '0x8C6d30e7F2096FB3A949f886629328C7AEEE7A2B';
 
     this.contract = TruffleContract(tokenAbi);
     this.contract.setProvider(this.web3Provider);
-    let inst;
     this.contract.deployed().then(
       val => this.instance = val,
       err => console.error(err)
@@ -41,30 +40,56 @@ export class EthService {
     });
   }
 
+  public isAdmin(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.getAccountInfo().then(account => {
+        console.log(account);
+        console.log(window.web3.eth.defaultAccount.toLowerCase());
+        return resolve(account === window.web3.eth.defaultAccount.toLowerCase());
+      });
+    });
+  }
+
   addVoter(address: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      return this.instance.giveRightToVote(
-        address,
-        { from: '0xE08ceC61E01c9905745A50354128ABBA8024b25F' }
-      ).then(function (status) {
-        if (status) {
-          console.log(status);
-          return resolve(status);
-        }
-      }).catch(function (error) {
-        console.error(error);
-        return reject('Error in adding voter');
+      window.web3.eth.getCoinbase((err, account) => {
+        this.contract.deployed().then(
+          val => {
+            this.instance = val;
+            console.log('voting from ' + account);
+            return val.giveRightToVote(
+              address,
+              { from: account }
+            ).then(function (status) {
+              if (status) {
+                console.log(status);
+                return resolve(status);
+              }
+            }).catch(function (error) {
+              console.error(error);
+              return reject('Error in adding voter');
+            });
+          },
+          error => console.error(error)
+        );
       });
-    })
+    });
   }
 
   getVotersList(): Promise<string[]> {
     return new Promise((resolve, reject) => {
-      return this.instance.votersAddress(0, { from: '0xE08ceC61E01c9905745A50354128ABBA8024b25F' })
-        .catch(function (err) {
-          console.error(err);
-        });
-    })
+      this.getAccountInfo().then(account => {
+        this.contract.deployed().then(instance => {
+          this.instance = instance;
+          return instance.votersAddress(0, { from: account })
+            .catch(function (err) {
+              console.error(err);
+            });
+        },
+          err => console.error(err)
+        );
+      });
+    });
   }
 
   vote(candidate: number): Promise<boolean> {
