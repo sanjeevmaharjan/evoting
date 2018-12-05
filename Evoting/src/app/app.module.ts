@@ -7,12 +7,9 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { HomeComponent } from './home/home.component';
 import { FooterComponent } from './shared/footer/footer.component';
-import { LoginComponent } from './login/login.component';
 import { VoteComponent } from './user/vote/vote.component';
 import { ResultsComponent } from './user/results/results.component';
-import { RegisterComponent } from './register/register.component';
 import { AccountsService } from './shared/services/accounts.service';
-import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -20,10 +17,8 @@ import { FormsModule } from '@angular/forms';
     HeaderComponent,
     HomeComponent,
     FooterComponent,
-    LoginComponent,
     VoteComponent,
     ResultsComponent,
-    RegisterComponent
   ],
   imports: [
     BrowserModule,
