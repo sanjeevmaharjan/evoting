@@ -1,40 +1,47 @@
 import { Injectable, Inject } from '@angular/core';
 // Web3
-import { WEB3 } from '../tokens';
-import Web3 from 'web3';
+import * as Web3 from 'web3';
 
 // RXJS
 import { Observable, bindNodeCallback, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
+
+declare let require: any;
+declare let window: any;
 
 @Injectable({
     providedIn: 'root'
 })
 export class AccountsService {
 
-    constructor(@Inject(WEB3) private web3: Web3) { }
+    private web3Provider: null;
 
-    get defaultAccount(): string { return this.web3.eth.defaultAccount; }
-    set defaultAccount(account: string) { this.web3.eth.defaultAccount = account; }
-
-    /** Returns all accounts available */
-    public getAccounts(): Observable<string[]> {
-        return bindNodeCallback(this.web3.eth.getAccounts)();
-    }
-
-    /** Get the current account */
-    public currentAccount(): Observable<string | Error> {
-        if (this.web3.eth.defaultAccount) {
-            return of(this.web3.eth.defaultAccount);
+    constructor() {
+        if (typeof window.web3 !== 'undefined') {
+            this.web3Provider = window.web3.currentProvider;
         } else {
-            return this.getAccounts().pipe(
-                tap((accounts: string[]) => {
-                    if (accounts.length === 0) { throw new Error('No accounts available'); }
-                }),
-                map((accounts: string[]) => accounts[0]),
-                tap((account: string) => this.defaultAccount = account),
-                catchError((err: Error) => of(err))
-            );
+            this.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
         }
+        window.web3 = new Web3(this.web3Provider);
+
+        // set default account
+        window.web3.eth.defaultAccount = '0x8C6d30e7F2096FB3A949f886629328C7AEEE7A2B';
     }
+
+    public getAccountInfo(): Promise<string> {
+        return new Promise((resolve, reject) => {
+          window.web3.eth.getCoinbase(function (err, account) {
+            return resolve(String(account));
+          });
+        });
+      }
+    
+      public isAdmin(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+          this.getAccountInfo().then(account => {
+            console.log(account);
+            return resolve(account === window.web3.eth.defaultAccount.toLowerCase());
+          });
+        });
+      }
 }

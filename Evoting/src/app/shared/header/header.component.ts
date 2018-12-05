@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EthService } from '../services/eth.service';
+import { AccountsService } from '../services/accounts.service';
 
 @Component({
   selector: 'app-header',
@@ -19,11 +20,11 @@ export class HeaderComponent implements OnInit {
 
   public isCollapsed = false;
 
-  constructor(private ethService: EthService) { }
+  constructor(private accountService: AccountsService) { }
 
   ngOnInit() {
-    this.ethService.getAccountInfo().then(account => console.log(this.isLoggedIn = account ? true: false));
-    this.ethService.isAdmin().then(check => this.isAdmin = check);
+    this.accountService.getAccountInfo().then(account => console.log(this.isLoggedIn = account ? true: false));
+    this.accountService.isAdmin().then(check => this.isAdmin = check);
   }
 
 }

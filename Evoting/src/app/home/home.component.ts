@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit {
 
   account: string = "...";
 
-  constructor(config: NgbCarouselConfig, private ethService: EthService) { 
+  constructor(config: NgbCarouselConfig, private accountService: AccountsService) { 
     // customize default values of carousels used by this component tree
     config.interval = 3000;
     config.wrap = true;
@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.ethService.getAccountInfo().then(
+    this.accountService.getAccountInfo().then(
       val => {
         this.account = val; console.log(val)
       },

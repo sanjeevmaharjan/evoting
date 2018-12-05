@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as Web3 from 'web3';
-import * as TruffleContract from 'truffle-contract';
 import { Candidate } from '../models/candidate.model';
+import { AccountsService } from './accounts.service';
+import { Converter } from '../utils/converter';
+
 declare let require: any;
 declare let window: any;
 const tokenAbi = require('../../../../../build/contracts/Ballot.json');
@@ -11,9 +13,9 @@ const tokenAbi = require('../../../../../build/contracts/Ballot.json');
 export class EthService {
   private web3Provider: null;
   private contract;
-  private instance;
 
-  constructor() {
+  constructor(private accountService: AccountsService) {
+
     if (typeof window.web3 !== 'undefined') {
       this.web3Provider = window.web3.currentProvider;
     } else {
@@ -24,81 +26,50 @@ export class EthService {
     // set default account
     window.web3.eth.defaultAccount = '0x8C6d30e7F2096FB3A949f886629328C7AEEE7A2B';
 
-    this.contract = TruffleContract(tokenAbi);
-    this.contract.setProvider(this.web3Provider);
-    this.contract.deployed().then(
-      val => this.instance = val,
-      err => console.error(err)
-    );
-  }
+    //this.contract = TruffleContract(tokenAbi);
 
-  public getAccountInfo(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      window.web3.eth.getCoinbase(function (err, account) {
-        return resolve(String(account));
-      });
-    });
-  }
-
-  public isAdmin(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      this.getAccountInfo().then(account => {
-        console.log(account);
-        console.log(window.web3.eth.defaultAccount.toLowerCase());
-        return resolve(account === window.web3.eth.defaultAccount.toLowerCase());
-      });
-    });
+    // window.web3.eth.net.getId().then(id => {
+    //   console.log(id);
+    //   console.log(tokenAbi.networks[id])
+    // });
+    
+    this.contract = new window.web3.eth.Contract(tokenAbi.abi, tokenAbi.networks[5777].address);
+    console.log(this.contract.methods);
   }
 
   addVoter(address: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       window.web3.eth.getCoinbase((err, account) => {
-        this.contract.deployed().then(
-          val => {
-            this.instance = val;
-            console.log('voting from ' + account);
-            return val.giveRightToVote(
-              address,
-              { from: account }
-            ).then(function (status) {
+        return this.contract.methods.giveRightToVote(address)
+          .call({ from: account })
+            .then(function (status) {
               if (status) {
                 console.log(status);
                 return resolve(status);
               }
             }).catch(function (error) {
-              console.error(error);
-              return reject('Error in adding voter');
-            });
-          },
-          error => console.error(error)
-        );
+                console.error(error);
+                return reject('Error in adding voter');
+              });
       });
     });
   }
 
   getVotersList(): Promise<string[]> {
     return new Promise((resolve, reject) => {
-      this.getAccountInfo().then(account => {
-        this.contract.deployed().then(instance => {
-          this.instance = instance;
-          return instance.votersAddress(0, { from: account })
-            .catch(function (err) {
-              console.error(err);
-            });
-        },
-          err => console.error(err)
-        );
+      this.accountService.getAccountInfo().then(account => {
+        return this.contract.methods.votersAddress(0).call({ from: account })
+          .catch(function (err) {
+            console.error(err);
+          });
       });
     });
   }
 
   vote(candidate: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.getAccountInfo().then(account => {
-        this.instance.vote(
-          candidate,
-          { from: account }
-        ).then(function (status) {
+      this.accountService.getAccountInfo().then(account => {
+        this.contract.methods.vote(candidate).call({ from: account }).then(function (status) {
           console.log(candidate);
           if (status) {
             console.log(status);
@@ -114,25 +85,19 @@ export class EthService {
 
   getCandidates(): Promise<Candidate[]> {
     return new Promise((resolve, reject) => {
-      this.getAccountInfo().then(account => {
-        this.contract.deployed().then(
-          val => {
-            this.instance = val;
-            val.candidatesCount().then(count => {
-              let candidates = new Array<Candidate>();
-              for (let i = 0; i < count; i++) {
-                this.instance.candidates(i).then(candidate => {
-                  candidates[i] = new Candidate();
-                  candidates[i].id = i;
-                  candidates[i].name = window.web3.toAscii(candidate[0]);
-                  candidates[i].voteCount = candidate[1];
-                });
-              }
-              return resolve(candidates);
+      this.accountService.getAccountInfo().then(account => {
+        this.contract.methods.candidatesCount().call().then(count => {
+          let candidates = new Array<Candidate>();
+          for (let i = 0; i < count; i++) {
+            this.contract.methods.candidates(i).call().then(candidate => {
+              candidates[i] = new Candidate();
+              candidates[i].id = i;
+              candidates[i].name = window.web3.utils.hexToUtf8(candidate[0]);
+              candidates[i].voteCount = candidate[1];
             });
-          },
-          err => console.error(err)
-        );
+          }
+          return resolve(candidates);
+        });
       });
     });
   }
