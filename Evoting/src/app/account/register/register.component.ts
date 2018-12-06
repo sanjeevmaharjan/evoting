@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountOption } from './account-option.enum';
+import { isNumber, isNull } from 'util';
+import { EthService } from 'src/app/shared/services/eth.service';
 
 @Component({
   selector: 'app-register',
@@ -8,39 +10,26 @@ import { AccountOption } from './account-option.enum';
 })
 export class RegisterComponent implements OnInit {
 
+  name: string;
   accountOption: number;
+  existingAccount: string;
+  newAccount: string;
+  newPassword: string;
 
-  availableAccountOptions: string[] = Object.values(AccountOption);
+  availableAccountOptions: string[];
 
-  constructor() {
+  constructor(private ethService: EthService) {
     this.accountOption = AccountOption.ACCOUNT;
-  }
-
-  setByAccount(): void {
-    this.accountOption = AccountOption.ACCOUNT;
-  }
-
-  setByMetaMask(): void {
-    this.accountOption = AccountOption.METAMASK;
-  }
-
-  setByCreation(): void {
-    this.accountOption = AccountOption.CREATE;
-  }
-
-  byAccount(): boolean {
-    return this.accountOption === AccountOption.ACCOUNT;
-  }
-
-  byMetaMask(): boolean {
-    return this.accountOption === AccountOption.METAMASK;
-  }
-
-  byCreation(): boolean {
-    return this.accountOption === AccountOption.CREATE;
+    this.availableAccountOptions = Object.keys(AccountOption).filter(x => isNaN(+x));
   }
 
   ngOnInit() {
   }
 
+  createEthAccount(): void {
+    this.ethService.createAccount(this.newPassword).then(x => {
+      console.log('Created new Account: ' + x);
+      this.newAccount = x;
+    });
+  }
 }

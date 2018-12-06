@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as Web3 from 'web3';
+import * as Personal from 'web3';
 import * as TruffleContract from 'truffle-contract';
 import { Candidate } from '../models/candidate.model';
 declare let require: any;
@@ -38,6 +39,11 @@ export class EthService {
         return resolve(String(account));
       });
     });
+  }
+
+  /** Create a new account */
+  public createAccount(password: string): Promise<string> {
+    return window.web3.eth.personal.newAccount(password);
   }
 
   public isAdmin(): Promise<boolean> {

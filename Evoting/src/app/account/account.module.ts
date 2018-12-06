@@ -5,6 +5,7 @@ import { accountRoutes } from './account.routes';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms';
+import { NgbTabsetModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { FormsModule } from '@angular/forms';
   imports: [
     CommonModule,
     RouterModule.forChild(accountRoutes),
-    FormsModule
+    FormsModule,
+    NgbTabsetModule
   ]
 })
 export class AccountModule { }
