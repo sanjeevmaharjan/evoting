@@ -5,6 +5,8 @@ import {EthService} from "./eth.service";
 import {MsgMetadataModel} from "../models/msg-metadata.model";
 import {IssueModel} from "../models/issue.model";
 import {promise} from "selenium-webdriver";
+import {reject} from "q";
+import {from} from "rxjs";
 
 declare let require: any;
 const tokenAbi = require('../../../../../build/contracts/Ballot.json');
@@ -18,35 +20,36 @@ export class BallotService {
   constructor(private accountService: AccountsService, private ethService: EthService) {
     this.web3 = this.ethService.getWeb3();
     this.contract = new this.web3.eth.Contract(tokenAbi.abi, tokenAbi.networks[5777].address);
+    this.contract.events.OnCandidateAdded().on('log', function (error, event) {
+      if (error) console.log(error);
+      console.log(event);
+    });
   }
 
   getAccount(): string {
     return this.web3.eth.defaultAccount;
   }
 
-  addCandidate(issueId: number, name: string, description: string, msg: MsgMetadataModel): Promise<number> {
+  addCandidate(issueId: number, name: string, description: string): Promise<number | void> {
     var enc = new TextEncoder();
     return new Promise<number>(((resolve, reject) => {
-      this.contract.methods.registerCandidate(issueId, enc.encode(name), description).call(msg).then( id =>{
-        return resolve(id);
+      this.contract.methods.registerCandidate(issueId, enc.encode(name), enc.encode(description)).estimateGas({from: this.getAccount()}).then(gas => {
+        console.log('Gas Amount: ' + gas);
+        this.contract.methods.registerCandidate(issueId, enc.encode(name), enc.encode(description)).send({from: this.getAccount(), gas: gas}).then( id =>{
+          return resolve(id);
+        });
       });
-    }));
+    })).catch(err => {
+      reject(err);
+    });
   }
 
-  addVoter(address: string): Promise<boolean> {
+  addVoter(name: string, pk: string, msg: MsgMetadataModel): Promise<boolean> {
+    var enc = new TextEncoder();
     return new Promise((resolve, reject) => {
-      this.web3.eth.getCoinbase((err, account) => {
-        return this.contract.methods.giveRightToVote(address)
-          .call({ from: account })
-            .then(function (status) {
-              if (status) {
-                console.log(status);
-                return resolve(status);
-              }
-            }).catch(function (error) {
-                console.error(error);
-                return reject('Error in adding voter');
-              });
+      this.contract.methods.registerVoter(enc.encode(name), enc.encode(pk)).estimateGas(msg).then(gas => {
+        console.log('Gas used: ' + gas);
+        this.contract.methods.registerVoter(enc.encode(name), enc.encode(pk)).send(msg).then();
       });
     });
   }

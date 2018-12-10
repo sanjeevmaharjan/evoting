@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {BallotService} from "../../shared/services/ballot.service";
 import {MsgMetadataModel} from "../../shared/models/msg-metadata.model";
+import {AccountsService} from "../../shared/services/accounts.service";
 
 @Component({
   selector: 'app-add-candidate',
@@ -19,8 +20,7 @@ export class AddCandidateComponent implements OnInit {
   }
 
   submit() {
-    console.log(this.newName);
-    this.ballotService.addCandidate(1, this.newName, this.description, new MsgMetadataModel(this.ballotService.getAccount())).then(id => {
+    this.ballotService.addCandidate(1, this.newName, this.description).then(id => {
       console.log(id)
     });
   }

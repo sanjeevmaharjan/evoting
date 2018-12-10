@@ -40,8 +40,26 @@ export class AccountsService {
     });
   }
 
+  public unlock(address: string, password: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this.web3.eth.personal.unlockAccount(address, password, 600).then(success => {
+        if (success) {
+          console.log('Account: ' + address + ' Unlocked.');
+          return resolve(true);
+        }
+        else {
+          return reject('Could not Unlock Account');
+        }
+      });
+    });
+  }
+
   /** Create a new account */
-  public createAccount(): any {
-    return this.web3.eth.accounts.create();
+  public createAccount(password: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.web3.eth.personal.newAccount(password).then( account => {
+        return resolve(account);
+      });
+    });
   }
 }

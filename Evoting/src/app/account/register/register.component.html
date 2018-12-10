@@ -1,4 +1,4 @@
-<form class="col-10">
+<form class="col-10" (submit)="submit()">
   <div class="form-group">
     <label for="name">Name</label>
     <input type="text" class="form-control" id="name" name="name" [(ngModel)]="name" aria-describedby="nameHelp" placeholder="Enter your Name">
@@ -26,7 +26,7 @@
       <div class="form-text text-success">Using this option will use the account logged in on your metamask extension.</div>
     </div>
     <div *ngSwitchCase="'CREATE'">
-      <div *ngIf="!keystore">
+      <div *ngIf="!newAccount">
         <h4>Create New Account</h4>
         <div class="form-group">
           <label for="password">Enter a password for the account</label>
@@ -36,16 +36,16 @@
         </div>
         <div class="form-group">
           <p>Clicking the button will create you a new Ethereum account.</p>
-          <button class="btn btn-success" (click)="createEthAccount()">Get New Ethereum Account</button>
+          <button type="button" class="btn btn-success" (click)="createEthAccount()">Get New Ethereum Account</button>
         </div>
       </div>
 
-      <div *ngIf="keystore">
+      <div *ngIf="newAccount">
         <h4>Your newly created Account:</h4>
         <div class="form-group">
-          <textarea rows="20" (focus)="copyText($event)" [ngModel]="keystore" name="textAreaKeyStore" class="form-control"
+          <textarea rows="4" (focus)="copyText($event)" [ngModel]="newAccount" name="textAreaKeyStore" class="form-control"
             readonly="true"></textarea>
-          <small id="passwordHelp" class="form-text text-muted">You are advised to save this text in a convinient place(File,
+          <small id="textAreaKeyStoreHelp" class="form-text text-muted">You are advised to save this text in a convinient place(File,
             keystore, etc.) which only you can access. You will need this and the password you provided in order to log in
             Later.</small>
         </div>
@@ -55,8 +55,8 @@
   </div>
 
   <div class="form-group">
-    <label for="primarykey">Voter's Public key</label>
-    <input type="text" class="form-control" id="primarykey" placeholder="Voter's Public Key">
+    <label for="publickey">Voter's Public key</label>
+    <input type="text" class="form-control" id="publicKey" name="publicKey" [(ngModel)]="publicKey" placeholder="Voter's Public Key">
   </div>
 
   <button type="submit" class="btn btn-primary">Submit</button>

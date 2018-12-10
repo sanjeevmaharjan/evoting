@@ -4,6 +4,7 @@ import { isNumber, isNull } from 'util';
 import { BallotService } from 'src/app/shared/services/ballot.service';
 import { AccountsService } from 'src/app/shared/services/accounts.service';
 import { ToastrService } from 'ngx-toastr';
+import {MsgMetadataModel} from "../../shared/models/msg-metadata.model";
 
 @Component({
   selector: 'app-register',
@@ -17,11 +18,11 @@ export class RegisterComponent implements OnInit {
   existingAccount: string;
   newAccount: string;
   newPassword: string;
-  keystore: string;
+  publicKey: string;
 
   availableAccountOptions: string[];
 
-  constructor(private accountService: AccountsService, private toastrService: ToastrService) {
+  constructor(private accountService: AccountsService, private toastrService: ToastrService, private ballotService: BallotService) {
     this.accountOption = AccountOption.ACCOUNT;
     this.availableAccountOptions = Object.keys(AccountOption).filter(x => isNaN(+x));
   }
@@ -30,13 +31,21 @@ export class RegisterComponent implements OnInit {
   }
 
   createEthAccount(): void {
-    const account = this.accountService.createAccount();
-    this.newAccount = account.address;
-    this.toastrService.success('Created New Account at ' + this.newAccount);
-    this.keystore = JSON.stringify(account.encrypt(account.privateKey, this.newPassword), null, 4);
+    const account = this.accountService.createAccount(this.newPassword).then(account => {
+      this.newAccount = account;
+      this.toastrService.success('Created New Account at ' + this.newAccount);
+    });
   }
 
   copyText($event): void {
     $event.target.select();
+  }
+
+  submit(): void {
+    this.accountService.unlock(this.newAccount, this.newPassword).then(x => {
+      if (x) {
+        this.ballotService.addVoter(this.name, this.publicKey, new MsgMetadataModel(this.newAccount)).then();
+      }
+    });
   }
 }

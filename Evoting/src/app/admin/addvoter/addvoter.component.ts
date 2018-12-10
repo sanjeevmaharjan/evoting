@@ -20,13 +20,13 @@ export class AddvoterComponent implements OnInit {
   }
 
   submit() {
-    this.ethService.addVoter(this.address).then(
+    /*this.ethService.addVoter(this.address).then(
       success => {
         if (success) {
           this.router.navigate(['']);
         }
       }
-    );
+    );*/
   }
 
 }

@@ -20,16 +20,16 @@ contract Ballot is Ownable, Voting {
         registerCandidate(1, 'Test Test', 'This is a test Description');
     }
 
-    function registerVoter(address addrVoter, bytes16 newName, bytes32 newPK) public onlyOwner {
-        addVoter(addrVoter, newName, newPK);
+    function registerVoter(bytes16 newName, bytes32 newPK) public {
+        addVoter(msg.sender, newName, newPK);
     }
 
     function registerIssue(bytes16 newName, string newDescription) public onlyOwner {
         addIssue(newName, stringToBytes32(newDescription));
     }
 
-    function registerCandidate(uint issueId, bytes16 newName, string newDescription) public onlyOwner returns (uint){
-        return addCandidate(issueId, newName, stringToBytes32(newDescription));
+    function registerCandidate(uint issueId, bytes16 newName, bytes32 newDescription) public onlyOwner returns (uint){
+        return addCandidate(issueId, newName, newDescription);
     }
 
     // Override interface ERC1202 functions
