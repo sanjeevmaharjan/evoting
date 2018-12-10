@@ -1,18 +1,10 @@
 <div class="navbar navbar-expand-sm navbar-light bg-light sub-nav">
-  <ul class="navbar-nav ml-auto" *ngIf="!isLoggedIn">
+  <ul class="navbar-nav ml-auto">
     <li class="nav-item">
       <a class="nav-link" routerLink="account/register"><small>Register</small></a>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" routerLink="account/login"><small>Login</small></a>
-    </li>
   </ul>
-  <small class="navbar-text ml-auto" *ngIf="isLoggedIn">Logged in as <strong>{{account}}</strong></small>
-  <ul class="navbar-nav ml-auto" *ngIf="isLoggedIn">
-    <li class="nav-item">
-      <a class="nav-link" routerLink="logout"><small>Logout</small></a>
-    </li>
-  </ul>
+  <small class="navbar-text ml-auto" *ngIf="account">Logged in as <strong>{{account}}</strong></small>
 </div>
 <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
   <a class="navbar-brand" href="#"><strong>E-Voting</strong></a>
@@ -24,10 +16,10 @@
       <li class="nav-item">
         <a class="nav-link" routerLink="home" routerLinkActive="active">Home <span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item" *ngIf="isLoggedIn">
+      <li class="nav-item">
         <a class="nav-link" routerLink="user/vote" routerLinkActive="active">Vote</a>
       </li>
-      <li class="nav-item" *ngIf="isLoggedIn">
+      <li class="nav-item">
         <a class="nav-link" routerLink="user/results" routerLinkActive="active">Results</a>
       </li>
       <li class="nav-item" *ngIf="isAdmin">

@@ -3,6 +3,7 @@
     <tr>
       <th scope="col">ID</th>
       <th scope="col">Name</th>
+      <th scope="col">Description</th>
       <th scope="col">Vote</th>
     </tr>
   </thead>
@@ -10,6 +11,7 @@
     <tr *ngFor="let candidate of candidates; trackBy:candidate?.voteCount">
       <th scope="row">{{candidate?.id}}</th>
       <td>{{candidate?.name}}</td>
+      <td>{{candidate?.description}}</td>
       <td>{{candidate?.voteCount}}</td>
     </tr>
   </tbody>

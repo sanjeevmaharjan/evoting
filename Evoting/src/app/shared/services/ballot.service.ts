@@ -1,44 +1,41 @@
 import { Injectable } from '@angular/core';
-import * as Web3 from 'web3';
-import { Candidate } from '../models/candidate.model';
+import { CandidateModel} from '../models/candidate.model';
 import { AccountsService } from './accounts.service';
+import {EthService} from "./eth.service";
+import {MsgMetadataModel} from "../models/msg-metadata.model";
+import {IssueModel} from "../models/issue.model";
+import {promise} from "selenium-webdriver";
 
 declare let require: any;
-declare let window: any;
 const tokenAbi = require('../../../../../build/contracts/Ballot.json');
 @Injectable({
   providedIn: 'root'
 })
-export class EthService {
-  private web3Provider: null;
+export class BallotService {
+  private web3;
   private contract;
 
-  constructor(private accountService: AccountsService) {
+  constructor(private accountService: AccountsService, private ethService: EthService) {
+    this.web3 = this.ethService.getWeb3();
+    this.contract = new this.web3.eth.Contract(tokenAbi.abi, tokenAbi.networks[5777].address);
+  }
 
-    if (typeof window.web3 !== 'undefined') {
-      this.web3Provider = window.web3.currentProvider;
-    } else {
-      this.web3Provider = new Web3.providers.HttpProvider('HTTP://127.0.0.1:7545');
-    }
-    window.web3 = new Web3(this.web3Provider);
+  getAccount(): string {
+    return this.web3.eth.defaultAccount;
+  }
 
-    // set default account
-    accountService.getAccountInfo().then(account => window.web3.eth.defaultAccount = account);
-
-    // this.contract = TruffleContract(tokenAbi);
-
-    // window.web3.eth.net.getId().then(id => {
-    //   console.log(id);
-    //   console.log(tokenAbi.networks[id])
-    // });
-
-    this.contract = new window.web3.eth.Contract(tokenAbi.abi, tokenAbi.networks[5777].address);
-    console.log(this.contract.methods);
+  addCandidate(issueId: number, name: string, description: string, msg: MsgMetadataModel): Promise<number> {
+    var enc = new TextEncoder();
+    return new Promise<number>(((resolve, reject) => {
+      this.contract.methods.registerCandidate(issueId, enc.encode(name), description).call(msg).then( id =>{
+        return resolve(id);
+      });
+    }));
   }
 
   addVoter(address: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      window.web3.eth.getCoinbase((err, account) => {
+      this.web3.eth.getCoinbase((err, account) => {
         return this.contract.methods.giveRightToVote(address)
           .call({ from: account })
             .then(function (status) {
@@ -65,30 +62,96 @@ export class EthService {
     });
   }
 
-  vote(candidate: number): Promise<boolean> {
+  // needs sender
+  vote(candidate: number, msg: MsgMetadataModel): Promise<boolean> {
+    this.web3.eth.defaultAccount = msg.from;
     return new Promise((resolve, reject) => {
-      this.accountService.getAccountInfo().then(account => {
-        this.contract.methods.vote(candidate).call().then(console.log);
+      this.contract.methods.vote(candidate).call().then().catch(err => reject(err));
+    });
+  }
+
+  availableIssues(): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      this.contract.methods.availableIssues().call().then(numIssues => {
+        return resolve(numIssues);
+      }).catch(err => {
+        reject(err);
+      });
+    })
+  }
+
+  issueDescription(issueId: number): Promise<IssueModel> {
+    return new Promise<IssueModel>((resolve, reject) => {
+      this.contract.methods.issueDescription(issueId).call().then(iss => {
+        let issue = new IssueModel();
+        issue.id = iss.id;
+        issue.name = iss.name;
+        issue.description = iss.description;
+        issue.numCandidates = iss.candidatesTracker;
+        issue.candidates = new Array<CandidateModel>();
+
+        return resolve(issue);
+      }).catch(err => {
+        reject(err);
+      });
+    })
+  }
+  optionDescription(optionId: number): Promise<CandidateModel> {
+    return new Promise((resolve, reject) => {
+      this.contract.methods.optionDescription(optionId).call().then(cand => {
+        let candidate: CandidateModel = new CandidateModel();
+        candidate.id = cand.id;
+        candidate.name = this.web3.utils.hexToUtf8(cand.name);
+        candidate.description = this.web3.utils.hexToUtf8(cand.description);
+        candidate.voteCount = cand.voteCount;
+
+        return resolve(candidate);
+      }).catch(err => {
+        reject(err);
       });
     });
   }
 
-  getCandidates(): Promise<Candidate[]> {
+
+  /*getCandidates(): Promise<IssueModel[]> {
     return new Promise((resolve, reject) => {
-      this.accountService.getAccountInfo().then(account => {
-        this.contract.methods.candidatesCount().call().then(count => {
-          const candidates = new Array<Candidate>();
-          for (let i = 0; i < count; i++) {
-            this.contract.methods.candidates(i).call().then(candidate => {
-              candidates[i] = new Candidate();
-              candidates[i].id = i;
-              candidates[i].name = window.web3.utils.hexToUtf8(candidate[0]);
-              candidates[i].voteCount = candidate[1];
-            });
-          }
-          return resolve(candidates);
-        });
+      this.contract.methods.availableIssues().call().then(numIssues => {
+        const issues = new Array<IssueModel>();
+
+        console.log('Number of Issues: ' + numIssues);
+
+        for (let i = 1; i <= numIssues; i++) {
+          this.contract.methods.issueDescription(i).call().then(iss => {
+            let issue = new IssueModel();
+            issue.id = iss.id;
+            issue.name = iss.name;
+            issue.description = iss.description;
+            issue.candidates = new Array<CandidateModel>();
+
+            console.log('Number of Candidates: ' + iss.candidatesTracker);
+
+            for (let j = 1; j < iss.candidatesTracker; j++) {
+              this.contract.methods.optionDescription(j).call().then(cand => {
+                let candidate: CandidateModel = new CandidateModel();
+                candidate.id = cand.id;
+                candidate.name = this.web3.utils.hexToUtf8(cand.name);
+                console.log(cand.name);
+                candidate.description = this.web3.utils.hexToUtf8(cand.description);
+                console.log(cand.description);
+                candidate.voteCount = cand.voteCount;
+
+                issue.candidates.push(candidate);
+
+                if (i == numIssues) {
+                  return resolve(issues);
+                }
+              });
+            }
+
+            issues.push(issue);
+          });
+        }
       });
     });
-  }
+  }*/
 }

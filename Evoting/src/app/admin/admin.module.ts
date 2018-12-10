@@ -4,9 +4,10 @@ import { AddvoterComponent } from './addvoter/addvoter.component';
 import { RouterModule } from '@angular/router';
 import { routes } from './admin.routes';
 import { FormsModule } from '@angular/forms';
+import { AddCandidateComponent } from './add-candidate/add-candidate.component';
 
 @NgModule({
-  declarations: [AddvoterComponent],
+  declarations: [AddvoterComponent, AddCandidateComponent],
   imports: [
     CommonModule,
     FormsModule,

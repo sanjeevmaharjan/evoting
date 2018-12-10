@@ -1,35 +1,27 @@
 import { Injectable, Inject } from '@angular/core';
-// Web3
-import * as Web3 from 'web3';
-
-declare let require: any;
-declare let window: any;
+import {EthService} from "./eth.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountsService {
 
-  private web3Provider: null;
+  private web3;
 
-  constructor() {
-    if (typeof window.web3 !== 'undefined') {
-      this.web3Provider = window.web3.currentProvider;
-    } else {
-      this.web3Provider = new Web3.providers.HttpProvider('HTTP://127.0.0.1:7545');
-    }
-    window.web3 = new Web3(this.web3Provider);
+  constructor(private ethService: EthService) {
+
+    this.web3 = this.ethService.getWeb3();
 
     // set default account
-    this.getAccountInfo().then(account => window.web3.eth.defaultAccount = account);
+    this.getAccountInfo().then(account => this.web3.eth.defaultAccount = account);
 
-    window.web3.eth.getAccounts().then(x => console.log(JSON.stringify(x)));
-    console.log(window.web3.eth.accounts.wallet);
+    this.web3.eth.getAccounts().then(x => console.log(JSON.stringify(x)));
+    console.log(this.web3.eth.accounts.wallet);
   }
 
   public getAccountInfo(): Promise<string|null> {
     return new Promise((resolve, reject) => {
-      window.web3.eth.getCoinbase().then(account => {
+      this.web3.eth.getCoinbase().then(account => {
         console.log(account);
         return resolve(account);
       });
@@ -40,16 +32,16 @@ export class AccountsService {
     return new Promise((resolve, reject) => {
       this.getAccountInfo().then(account => {
         console.log('Account in use: ' + account);
-        if (!window.web3.eth.defaultAccount) {
-          return false;
+        if (!this.web3.eth.defaultAccount) {
+          return resolve(false);
         }
-        return resolve(account === window.web3.eth.defaultAccount.toLowerCase());
+        return resolve(account === this.web3.eth.defaultAccount.toLowerCase());
       });
     });
   }
 
   /** Create a new account */
   public createAccount(): any {
-    return window.web3.eth.accounts.create();
+    return this.web3.eth.accounts.create();
   }
 }

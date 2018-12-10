@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountOption } from './account-option.enum';
 import { isNumber, isNull } from 'util';
-import { EthService } from 'src/app/shared/services/eth.service';
+import { BallotService } from 'src/app/shared/services/ballot.service';
 import { AccountsService } from 'src/app/shared/services/accounts.service';
 import { ToastrService } from 'ngx-toastr';
 
