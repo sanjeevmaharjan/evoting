@@ -3,11 +3,9 @@ pragma solidity >=0.4.22 <0.6.0;
 import "./base/Ownable.sol";
 import "./logic/Voting.sol";
 import "./lib/DateTime/DateTime.sol";
-import "./utils/Address.sol"; 
+import "./utils/Address.sol";
 
-import "./interfaces/ERC1202.sol";
-
-contract Ballot is Ownable, ERC1202, Voting {
+contract Ballot is Ownable, Voting {
     using Address for address;
 
     bool private isVotingOpen;
@@ -54,16 +52,16 @@ contract Ballot is Ownable, ERC1202, Voting {
         return true;
     }
 
-    function issueDescription() public view returns (bytes32) {
-        return getIssueDescription(1);
+    function availableIssues() public view returns (uint) {
+        return getIssueCount();
     }
 
-    function availableOptions() public view returns (uint[] memory options) {
-        options = getOptions();
+    function issueDescription(uint issueId) public view returns (uint id, bytes16 name, bytes32 description, uint candidatesTracker) {
+        (id, name, description, candidatesTracker) = getIssue(issueId);
     }
 
-    function optionDescription(uint option) public view mustBeCandidate(option) returns (bytes32 desc) {
-        desc = getOptionDescription(option);
+    function optionDescription(uint optionId) public view mustBeCandidate(optionId) returns (uint id, bytes16 name, bytes32 description, uint256 voteCount) {
+        (id, name, description, voteCount) = getOption(optionId);
     }
 
     function getStatus() public view returns (bool isOpen) {

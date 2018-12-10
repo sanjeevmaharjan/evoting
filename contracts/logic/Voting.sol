@@ -72,35 +72,22 @@ contract Voting {
         emit OnVoterAdded(votersTracker);
     }
 
-    function getIssueDescription(uint issueId) internal view mustBeIssue(issueId) returns (bytes32) {
-        return issues[issueId].description;
+    function getIssueCount() internal view returns (uint) {
+        return issuesTracker;
     }
 
-    function getOptions() internal view returns (uint[] memory options) {
-        options = new uint[](getNumOptions());
-        uint j = 0;
-        for (uint i = 0; i < issuesTracker; i++) {
-            if (issues[i].id > 0) {
-                options[j] = issues[i].id;
-                j++;
-            }
-        }
+    function getIssue(uint issueId) internal view mustBeIssue(issueId) returns (uint, bytes16, bytes32, uint) {
+        Issue memory iss = issues[issueId];
+
+        return (iss.id, iss.name, iss.description, iss.candidatesTracker);
     }
 
-    function getNumOptions() private view returns (uint count) {
-        count = 0;
-        for (uint i = 0; i < issuesTracker; i++) {
-            if (issues[i].id > 0) {
-                count++;
-            }
-        }
-    }
-
-    function getOptionDescription(uint candidateId) internal view returns (bytes32) {
+    function getOption (uint candidateId) internal view returns (uint id, bytes16 name, bytes32 description, uint256 voteCount) {
         uint issueId = getIssueOf(candidateId);
         require(issueId > 0, "The Candidate doesnot belong to any Election Issue.");
         require(candidateId > 0 && issues[issueId].candidates[candidateId].id > 0, "Candidate must be valid.");
-        return issues[issueId].candidates[candidateId].description;
+        Candidate memory cand = issues[issueId].candidates[candidateId];
+        return (cand.id, cand.name, cand.description, cand.voteCount);
     }
 
     function getVoteCountOf(uint candidateId) public view returns (uint256) {
