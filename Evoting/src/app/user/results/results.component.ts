@@ -15,7 +15,7 @@ export class ResultsComponent implements OnInit {
   ngOnInit() {
     this.ethService.getCandidates().then(candidates => {
       this.candidates = candidates;
-      console.log("got list of candidates");
+      console.log('got list of candidates');
     });
   }
 

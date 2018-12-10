@@ -7,10 +7,10 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let candidate of candidates">
-      <th scope="row">{{candidate.id}}</th>
-      <td>{{candidate.name}}</td>
-      <td>{{candidate.voteCount}}</td>
+    <tr *ngFor="let candidate of candidates; trackBy:candidate?.voteCount">
+      <th scope="row">{{candidate?.id}}</th>
+      <td>{{candidate?.name}}</td>
+      <td>{{candidate?.voteCount}}</td>
     </tr>
   </tbody>
 </table>

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EthService } from 'src/app/shared/services/eth.service';
 import { Candidate } from 'src/app/shared/models/candidate.model';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-vote',
@@ -11,7 +12,7 @@ import { Router } from '@angular/router';
 export class VoteComponent implements OnInit {
   candidates: Candidate[];
 
-  constructor(private ethService: EthService, private router: Router) { }
+  constructor(private ethService: EthService, private router: Router, private toastr: ToastrService) { }
 
   ngOnInit() {
     this.ethService.getCandidates().then(candidates => this.candidates = candidates);
@@ -21,7 +22,10 @@ export class VoteComponent implements OnInit {
     console.log('voting to ' + to);
     this.ethService.vote(to).then(success => {
       if (success) {
-        this.router.navigate(['results']);
+        this.toastr.success('Voted Successfully.');
+        this.router.navigate(['user/results']);
+      } else {
+        this.toastr.error('Unable to cast vote.');
       }
     });
   }

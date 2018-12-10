@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AccountOption } from './account-option.enum';
 import { isNumber, isNull } from 'util';
 import { EthService } from 'src/app/shared/services/eth.service';
+import { AccountsService } from 'src/app/shared/services/accounts.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -15,10 +17,11 @@ export class RegisterComponent implements OnInit {
   existingAccount: string;
   newAccount: string;
   newPassword: string;
+  keystore: string;
 
   availableAccountOptions: string[];
 
-  constructor(private ethService: EthService) {
+  constructor(private accountService: AccountsService, private toastrService: ToastrService) {
     this.accountOption = AccountOption.ACCOUNT;
     this.availableAccountOptions = Object.keys(AccountOption).filter(x => isNaN(+x));
   }
@@ -27,9 +30,13 @@ export class RegisterComponent implements OnInit {
   }
 
   createEthAccount(): void {
-    this.ethService.createAccount(this.newPassword).then(x => {
-      console.log('Created new Account: ' + x);
-      this.newAccount = x;
-    });
+    const account = this.accountService.createAccount();
+    this.newAccount = account.address;
+    this.toastrService.success('Created New Account at ' + this.newAccount);
+    this.keystore = JSON.stringify(account.encrypt(account.privateKey, this.newPassword), null, 4);
+  }
+
+  copyText($event): void {
+    $event.target.select();
   }
 }

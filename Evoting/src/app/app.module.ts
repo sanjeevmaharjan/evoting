@@ -10,20 +10,22 @@ import { FooterComponent } from './shared/footer/footer.component';
 import { VoteComponent } from './user/vote/vote.component';
 import { ResultsComponent } from './user/results/results.component';
 import { AccountsService } from './shared/services/accounts.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     HomeComponent,
-    FooterComponent,
-    VoteComponent,
-    ResultsComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgbModule
+    NgbModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot()
   ],
   providers: [AccountsService],
   bootstrap: [AppComponent]

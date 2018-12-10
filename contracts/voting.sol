@@ -7,10 +7,13 @@ contract Voting {
     
     mapping(address => Voter) public voters;
     address[] public votersAddress;
+
+    event Log(string);
     
     modifier canVote() {
-        Voter storage voter = voters[msg.sender];
+        Voter memory voter = voters[msg.sender];
         require(!voter.voted, "This account is not allowed to vote.");
+        emit Log("Voter verified to exist in our list.");
         _;
     }
     
@@ -19,7 +22,7 @@ contract Voting {
         votersAddress.push(voterAddress);
     }
     
-    function voted(address voterAddress) canVote internal {
+    function voted(address voterAddress) internal {
         voters[voterAddress].voted = true;
     }
 }

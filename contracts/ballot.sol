@@ -12,6 +12,9 @@ contract Ballot is Owned, Voting {
 
     mapping(uint => Candidate) public candidates;
     uint public candidatesCount;
+    string constant private msgFrom = "Ballot: ";
+
+    event Log(string);
 
     /// Create a new ballot
     constructor() public {
@@ -30,18 +33,19 @@ contract Ballot is Owned, Voting {
     }
 
     /// Give a single vote
-    function vote(uint voteTo) public OnlyValidCandidate(voteTo) payable {
+    function vote(uint voteTo) public OnlyValidCandidate(voteTo) {
         /// Check if canVote and then mark as voted.
         voted(msg.sender);
         candidates[voteTo].voteCount++;
     }
     
-    function checkVote(uint candidate) public view OnlyValidCandidate(candidate) returns(uint _voteCount) {
+    function checkVote(uint candidate) public OnlyValidCandidate(candidate) returns(uint _voteCount) {
         _voteCount = candidates[candidate].voteCount;
     }
     
     modifier OnlyValidCandidate(uint id) {
-        require(id <= candidatesCount , "Must be a valid Candidate.");
+        require(id <= candidatesCount, "Must be a valid Candidate.");
+        emit Log("Candidate Verified to exist.");
         _;
     }
 }

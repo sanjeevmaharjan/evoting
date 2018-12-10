@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EthService } from '../services/eth.service';
+import { AccountsService } from '../services/accounts.service';
 
 @Component({
   selector: 'app-header',
@@ -8,8 +9,9 @@ import { EthService } from '../services/eth.service';
 })
 export class HeaderComponent implements OnInit {
 
-  isAdmin: boolean = false;
-  isLoggedIn: boolean = false;
+  account = '';
+  isAdmin: boolean;
+  isLoggedIn: boolean;
 
   images = [
     'assets/img/bgslides/1.jpg',
@@ -19,11 +21,22 @@ export class HeaderComponent implements OnInit {
 
   public isCollapsed = false;
 
-  constructor(private ethService: EthService) { }
+  constructor(private accountService: AccountsService) { }
 
   ngOnInit() {
-    this.ethService.getAccountInfo().then(account => console.log(this.isLoggedIn = account ? true: false));
-    this.ethService.isAdmin().then(check => this.isAdmin = check);
+    this.accountService.isAdmin().then(check => this.isAdmin = check);
+    this.accountService.getAccountInfo().then(
+      val => {
+        if (val) {
+          this.account = val;
+          this.isLoggedIn = true;
+        } else {
+          this.isLoggedIn = false;
+        }
+        console.log(this.isLoggedIn);
+      },
+      err => console.log(err)
+    );
   }
 
 }
