@@ -1,0 +1,32 @@
+{
+  "name": "evoting",
+  "version": "1.0.0",
+  "description": "Evoting based on blockchain",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "truffle-contract": "^3.0.6"
+  },
+  "devDependencies": {
+    "concurrently": "^4.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently --kill-others \"node server.js\" \"cd Evoting && ng serve\"",
+    "node-server": "node server.js",
+    "angular": "cd Evoting && ng serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanjeevmaharjan/evoting.git"
+  },
+  "author": "Sanjeev Maharjan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sanjeevmaharjan/evoting/issues"
+  },
+  "homepage": "https://github.com/sanjeevmaharjan/evoting#readme"
+}
