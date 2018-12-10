@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { EthService } from 'src/app/shared/services/eth.service';
+import { BallotService } from 'src/app/shared/services/ballot.service';
 import { Event, Router } from '@angular/router';
 
 @Component({
@@ -11,7 +11,7 @@ export class AddvoterComponent implements OnInit {
   address: string;
   voters: string[];
 
-  constructor(private ethService: EthService, private router: Router) { }
+  constructor(private ethService: BallotService, private router: Router) { }
 
   ngOnInit() {
     this.ethService.getVotersList().then( function(value: string[]) {

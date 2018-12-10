@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { EthService } from '../services/eth.service';
+import { BallotService } from '../services/ballot.service';
 import { AccountsService } from '../services/accounts.service';
 
 @Component({
@@ -9,8 +9,8 @@ import { AccountsService } from '../services/accounts.service';
 })
 export class HeaderComponent implements OnInit {
 
-  isAdmin: boolean = false;
-  isLoggedIn: boolean = false;
+  account = '';
+  isAdmin: boolean;
 
   images = [
     'assets/img/bgslides/1.jpg',
@@ -23,7 +23,6 @@ export class HeaderComponent implements OnInit {
   constructor(private accountService: AccountsService) { }
 
   ngOnInit() {
-    this.accountService.getAccountInfo().then(account => console.log(this.isLoggedIn = account ? true: false));
     this.accountService.isAdmin().then(check => this.isAdmin = check);
   }
 

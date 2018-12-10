@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountOption } from './account-option.enum';
+import { isNumber, isNull } from 'util';
+import { BallotService } from 'src/app/shared/services/ballot.service';
+import { AccountsService } from 'src/app/shared/services/accounts.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -8,39 +12,31 @@ import { AccountOption } from './account-option.enum';
 })
 export class RegisterComponent implements OnInit {
 
+  name: string;
   accountOption: number;
+  existingAccount: string;
+  newAccount: string;
+  newPassword: string;
+  keystore: string;
 
-  availableAccountOptions: string[] = Object.values(AccountOption);
+  availableAccountOptions: string[];
 
-  constructor() {
+  constructor(private accountService: AccountsService, private toastrService: ToastrService) {
     this.accountOption = AccountOption.ACCOUNT;
-  }
-
-  setByAccount(): void {
-    this.accountOption = AccountOption.ACCOUNT;
-  }
-
-  setByMetaMask(): void {
-    this.accountOption = AccountOption.METAMASK;
-  }
-
-  setByCreation(): void {
-    this.accountOption = AccountOption.CREATE;
-  }
-
-  byAccount(): boolean {
-    return this.accountOption === AccountOption.ACCOUNT;
-  }
-
-  byMetaMask(): boolean {
-    return this.accountOption === AccountOption.METAMASK;
-  }
-
-  byCreation(): boolean {
-    return this.accountOption === AccountOption.CREATE;
+    this.availableAccountOptions = Object.keys(AccountOption).filter(x => isNaN(+x));
   }
 
   ngOnInit() {
   }
 
+  createEthAccount(): void {
+    const account = this.accountService.createAccount();
+    this.newAccount = account.address;
+    this.toastrService.success('Created New Account at ' + this.newAccount);
+    this.keystore = JSON.stringify(account.encrypt(account.privateKey, this.newPassword), null, 4);
+  }
+
+  copyText($event): void {
+    $event.target.select();
+  }
 }

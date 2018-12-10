@@ -55,10 +55,11 @@ contract Voting {
         emit OnIssueAdded(issuesTracker);
     }
 
-    function addCandidate(uint optionId, bytes16 newName, bytes32 newDescription) internal mustBeIssue(optionId) {
-        uint c = issues[optionId].candidatesTracker++;
+    function addCandidate(uint optionId, bytes16 newName, bytes32 newDescription) internal mustBeIssue(optionId) returns(uint) {
+        uint c = ++issues[optionId].candidatesTracker;
         issues[optionId].candidates[c] = Candidate({id: c, name: newName, description: newDescription, voteCount: 0});
         emit OnCandidateAdded(c, newName);
+        return c;
     }
 
     // Returns if adding was successful (cannot add if voter already exists)
@@ -72,35 +73,22 @@ contract Voting {
         emit OnVoterAdded(votersTracker);
     }
 
-    function getIssueDescription(uint issueId) internal view mustBeIssue(issueId) returns (bytes32) {
-        return issues[issueId].description;
+    function getIssueCount() internal view returns (uint) {
+        return issuesTracker;
     }
 
-    function getOptions() internal view returns (uint[] memory options) {
-        options = new uint[](getNumOptions());
-        uint j = 0;
-        for (uint i = 0; i < issuesTracker; i++) {
-            if (issues[i].id > 0) {
-                options[j] = issues[i].id;
-                j++;
-            }
-        }
+    function getIssue(uint issueId) internal view mustBeIssue(issueId) returns (uint, bytes16, bytes32, uint) {
+        Issue memory iss = issues[issueId];
+
+        return (iss.id, iss.name, iss.description, iss.candidatesTracker);
     }
 
-    function getNumOptions() private view returns (uint count) {
-        count = 0;
-        for (uint i = 0; i < issuesTracker; i++) {
-            if (issues[i].id > 0) {
-                count++;
-            }
-        }
-    }
-
-    function getOptionDescription(uint candidateId) internal view returns (bytes32) {
+    function getOption (uint candidateId) internal view returns (uint id, bytes16 name, bytes32 description, uint256 voteCount) {
         uint issueId = getIssueOf(candidateId);
         require(issueId > 0, "The Candidate doesnot belong to any Election Issue.");
         require(candidateId > 0 && issues[issueId].candidates[candidateId].id > 0, "Candidate must be valid.");
-        return issues[issueId].candidates[candidateId].description;
+        Candidate memory cand = issues[issueId].candidates[candidateId];
+        return (cand.id, cand.name, cand.description, cand.voteCount);
     }
 
     function getVoteCountOf(uint candidateId) public view returns (uint256) {
@@ -144,8 +132,8 @@ contract Voting {
 
     modifier mustBeCandidate(uint candidateId) {
         uint issueId = getIssueOf(candidateId);
-        require(issueId > 0 && issues[issueId].id > 0, "Option chosen is not Valid.");
-        require(candidateId > 0 && issues[issueId].candidates[candidateId].id > 0, "Candidate must be valid.");
+        require(issueId > 0 && issues[issueId].id > 0, appendUintToString("Invalid Issue: ", issueId));
+        require(candidateId > 0 && issues[issueId].candidates[candidateId].id > 0, appendUintToString("Invalid Candidate: ", candidateId));
         _;
     }
 
@@ -164,15 +152,53 @@ contract Voting {
 
     /// Returns candidateId or 0 if not found
     function getIssueOf(uint candidateId) public view returns (uint) {
-        for (uint i = 0; i <= issuesTracker; i++) {
+        require(candidateId > 0, "CandidateId must be greater than 0.");
+
+        for (uint i = 1; i <= issuesTracker; i++) {
             uint c = issues[i].candidatesTracker;
-            for (uint j = 0; j <= c; j++) {
+            require(c > 0, "Warning: No Candidates.");
+            for (uint j = 1; j <= c; j++) {
                 if (issues[i].candidates[j].id == candidateId) {
-                    return i;
+                    return issues[i].id;
                 }
             }
         }
+
+        require(false, "Issue Not found");
+
         return 0;
+    }
+
+    function stringToBytes32(string memory source) internal pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+
+    function appendUintToString(string inStr, uint v) private pure returns (string str) {
+        uint maxlength = 100;
+        bytes memory reversed = new bytes(maxlength);
+        uint i = 0;
+        while (v != 0) {
+            uint remainder = v % 10;
+            v = v / 10;
+            reversed[i++] = byte(48 + remainder);
+        }
+        bytes memory inStrb = bytes(inStr);
+        bytes memory s = new bytes(inStrb.length + i);
+        uint j;
+        for (j = 0; j < inStrb.length; j++) {
+            s[j] = inStrb[j];
+        }
+        for (j = 0; j < i; j++) {
+            s[j + inStrb.length] = reversed[i - 1 - j];
+        }
+        str = string(s);
     }
 
     event OnVoterAdded(uint id);

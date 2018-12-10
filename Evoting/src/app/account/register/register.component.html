@@ -1,31 +1,63 @@
-<form>
+<form class="col-10">
   <div class="form-group">
-    <label for="name"></label>
-    <input type="text" class="form-control" id="name" aria-describedby="nameHelp" placeholder="Enter your Name">
+    <label for="name">Name</label>
+    <input type="text" class="form-control" id="name" name="name" [(ngModel)]="name" aria-describedby="nameHelp" placeholder="Enter your Name">
     <small id="nameHelp" class="form-text text-muted">Your Full Name.</small>
   </div>
 
-  <select type="number" [(ngModel)]="accountOption" name="accountOption">
-    <option *ngFor="let opt of availableAccountOptions" [ngValue]="opt">{{opt}}</option>
-  </select>
-
-  <!-- Account Options -->
-  <div class="form-group" *ngIf="byAccount()">
-    <label for="account">Account</label>
-    <input type="text" class="form-control" id="account" aria-describedby="accountHelp" placeholder="Enter your Account Address">
-    <small id="accountHelp" class="form-text text-muted">We'll never share your account address with anyone else.</small>
+  <div class="form-group">
+    <label for="name">Choose an Account Option:</label>
+    <select type="number" [(ngModel)]="accountOption" name="accountOption" class="custom-select">
+      <option *ngFor="let opt of availableAccountOptions" [ngValue]="opt">{{opt}}</option>
+    </select>
   </div>
 
-  <div class="form-group" *ngIf="byCreation()">
-    
-  </div>
+  <div [ngSwitch]="accountOption" class="option-area">
+    <div *ngSwitchCase="'ACCOUNT'">
+      <h4>Using existing account</h4>
+      <div class="form-group">
+        <label for="existingAccount">Existing Account</label>
+        <input type="text" class="form-control" id="existingAccount" [(ngModel)]="existingAccount" aria-describedby="existingAccountHelp" placeholder="Ethereum Account Address">
+        <small id="existingAccountHelp" class="form-text text-muted">Enter Your Existing Ethereum Account Address.</small>
+      </div>
+    </div>
+    <div *ngSwitchCase="'METAMASK'">
+      <h4>Using Metamask</h4>
+      <div class="form-text text-success">Using this option will use the account logged in on your metamask extension.</div>
+    </div>
+    <div *ngSwitchCase="'CREATE'">
+      <div *ngIf="!keystore">
+        <h4>Create New Account</h4>
+        <div class="form-group">
+          <label for="password">Enter a password for the account</label>
+          <input type="password" class="form-control" id="password" name="password" [(ngModel)]="newPassword" aria-describedby="passwordHelp"
+            placeholder="Password">
+          <small id="passwordHelp" class="form-text text-muted">Enter a long and secure Password.</small>
+        </div>
+        <div class="form-group">
+          <p>Clicking the button will create you a new Ethereum account.</p>
+          <button class="btn btn-success" (click)="createEthAccount()">Get New Ethereum Account</button>
+        </div>
+      </div>
 
-  <!-- End Register Option-->
+      <div *ngIf="keystore">
+        <h4>Your newly created Account:</h4>
+        <div class="form-group">
+          <textarea rows="20" (focus)="copyText($event)" [ngModel]="keystore" name="textAreaKeyStore" class="form-control"
+            readonly="true"></textarea>
+          <small id="passwordHelp" class="form-text text-muted">You are advised to save this text in a convinient place(File,
+            keystore, etc.) which only you can access. You will need this and the password you provided in order to log in
+            Later.</small>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchDefault class="text-danger">Please Choose and Account Option From above.</div>
+  </div>
 
   <div class="form-group">
     <label for="primarykey">Voter's Public key</label>
     <input type="text" class="form-control" id="primarykey" placeholder="Voter's Public Key">
   </div>
-  
+
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
