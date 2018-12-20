@@ -16,6 +16,7 @@ const tokenAbi = require('../../../../../build/contracts/Ballot.json');
 export class BallotService {
   private web3;
   private contract;
+  public isAdmin;
 
   constructor(private accountService: AccountsService, private ethService: EthService) {
     this.web3 = this.ethService.getWeb3();
@@ -28,6 +29,16 @@ export class BallotService {
 
   getAccount(): string {
     return this.web3.eth.defaultAccount;
+  }
+
+  public isAccountAdmin(account: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.contract.methods.isOwner().call({from: account}).then(isAdmin => {
+        console.log('Account in use: ' + account + ' isAdmin: ' + isAdmin);
+        this.isAdmin = isAdmin;
+        return resolve(isAdmin);
+      });
+    });
   }
 
   addCandidate(issueId: number, name: string, description: string): Promise<number | void> {
@@ -44,32 +55,51 @@ export class BallotService {
     });
   }
 
-  addVoter(name: string, pk: string, msg: MsgMetadataModel): Promise<boolean> {
+  addVoter(name: string, pk: string, account: string, msg: MsgMetadataModel): Promise<boolean> {
     var enc = new TextEncoder();
     return new Promise((resolve, reject) => {
-      this.contract.methods.registerVoter(enc.encode(name), enc.encode(pk)).estimateGas(msg).then(gas => {
+      this.contract.methods.registerVoter(enc.encode(name), enc.encode(pk), account).estimateGas(msg).then(gas => {
         console.log('Gas used: ' + gas);
-        this.contract.methods.registerVoter(enc.encode(name), enc.encode(pk)).send(msg).then();
-      });
-    });
-  }
-
-  getVotersList(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      this.accountService.getAccountInfo().then(account => {
-        return this.contract.methods.votersAddress(0).call()
-          .catch(function (err) {
-            console.error(err);
-          });
+        msg.gas = gas;
+        this.contract.methods.registerVoter(enc.encode(name), enc.encode(pk), account).send(msg).then(success => {
+          if (success) {
+            this.accountService.transferEther(account).then(success => {
+              console.log('Balance transfered');
+            });
+          }
+          return resolve(success);
+        }).catch(err => {
+          return reject(err);
+        });
       });
     });
   }
 
   // needs sender
   vote(candidate: number, msg: MsgMetadataModel): Promise<boolean> {
-    this.web3.eth.defaultAccount = msg.from;
+    if (!msg) {
+      msg = new MsgMetadataModel(this.web3.eth.defaultAccount);
+    }
+
+    this.web3.eth.getBalance(msg.from).then(x => {
+      console.log(x);
+    });
     return new Promise((resolve, reject) => {
-      this.contract.methods.vote(candidate).call().then().catch(err => reject(err));
+      console.log(msg);
+      this.contract.methods.vote(candidate).estimateGas(msg).then(gas => {
+        msg.gas = gas;
+        console.log('Gas to use: ' + gas);
+
+        this.contract.methods.vote(candidate).send(msg).then(success => {
+          return resolve(success)
+        }).catch(err => {
+        console.error(err)
+          return reject(err)
+        })
+      }).catch(err => {
+        console.error(err)
+        return reject(err)
+      });
     });
   }
 

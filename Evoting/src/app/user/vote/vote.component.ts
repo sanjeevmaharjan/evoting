@@ -50,15 +50,16 @@ export class VoteComponent implements OnInit {
 
   vote(to: number) {
 
-    console.log('voting to ' + to);
-    this.ballotService.vote(to, new MsgMetadataModel('0x437bF15aA5aEE15e86697966DCB55033066958Ee')).then(success => {
+    console.log('voting to ' + to + ' from ' + this.ballotService.getAccount());
+    this.ballotService.vote(to, null).then(success => {
       if (success) {
-        this.toastrService.success('Voted Successfully.');
+        console.log(success);
+        //this.toastrService.success('Voted Successfully.');
         this.router.navigate(['user/results']);
       } else {
         this.toastrService.error('Unable to cast vote.');
       }
-    }).catch(err => this.toastrService.error(err));
+    }).catch(err => this.toastrService.error('User Has not been Verified by Admin'));
   }
 
 }

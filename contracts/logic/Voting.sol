@@ -71,6 +71,7 @@ contract Voting {
         votersTracker++;
         voters[addrVoter] = Voter({id: votersTracker, name: newName, pk: newPK, hasVoted: false});
         emit OnVoterAdded(votersTracker);
+        return true;
     }
 
     function getIssueCount() internal view returns (uint) {
@@ -100,11 +101,11 @@ contract Voting {
     }
 
     function vote(address addrVoter, uint issueId, uint candidateId)
-                    public mustBeVoter(addrVoter) mustBeIssue(issueId) mustBeCandidate(candidateId)
+                    public mustBeIssue(issueId) mustBeCandidate(candidateId)
                     returns (bool) {
         require(!hasVoted(addrVoter), "Cannot Vote more than once.");
 
-        issues[issueId].candidates[candidateId].voteCount.add(1);
+        issues[issueId].candidates[candidateId].voteCount ++;
         voters[addrVoter].hasVoted = true;
 
         return true;
@@ -138,15 +139,20 @@ contract Voting {
     }
 
     modifier mustBeVoter(address voter) {
-        require(isVoter(voter), "User must be a voter for the current operation.");
+        bool isRegistered = isVoter(voter);
+        require(isRegistered, "User must be a voter for the current operation.");
         _;
     }
 
-    function isVoter(address addrVoter) private view returns(bool) {
+    function isVoter(address addrVoter) public view returns(bool) {
         return voters[addrVoter].id > 0;
     }
 
-    function hasVoted(address addrVoter) public view mustBeVoter(addrVoter) returns (bool) {
+    function voterCount() public view returns(uint) {
+        return votersTracker;
+    }
+
+    function hasVoted(address addrVoter) public view returns (bool) {
         return voters[addrVoter].hasVoted;
     }
 

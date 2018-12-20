@@ -1,4 +1,8 @@
 export class RegistrationModel {
-    name: string;
-    account: string;
+  id: number;
+  name: string;
+  pk: string;
+  address: string;
+  isAccepted: boolean;
+  isReviewed: boolean;
 }

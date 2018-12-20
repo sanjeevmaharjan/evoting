@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { BallotService } from '../services/ballot.service';
 import { AccountsService } from '../services/accounts.service';
+import {EthService} from "../services/eth.service";
+
+declare let window: any;
 
 @Component({
   selector: 'app-header',
@@ -9,8 +12,10 @@ import { AccountsService } from '../services/accounts.service';
 })
 export class HeaderComponent implements OnInit {
 
-  account = '';
-  isAdmin: boolean;
+  /*account = '';*/
+  isAccountAdmin: boolean;
+  localStorage;
+  web3;
 
   images = [
     'assets/img/bgslides/1.jpg',
@@ -20,10 +25,19 @@ export class HeaderComponent implements OnInit {
 
   public isCollapsed = false;
 
-  constructor(private accountService: AccountsService) { }
+  constructor(public ballotService: BallotService, private ethService: EthService) {
+    this.web3 = this.ethService.getWeb3();
+    this.localStorage = localStorage;
+  }
 
   ngOnInit() {
-    this.accountService.isAdmin().then(check => this.isAdmin = check);
+    this.isAdmin(this.ballotService.getAccount());
+  }
+
+  isAdmin(account: string) {
+    this.ballotService.isAccountAdmin(this.web3.eth.defaultAccount).then(check => {
+      this.ballotService.isAdmin = check;
+    });
   }
 
 }

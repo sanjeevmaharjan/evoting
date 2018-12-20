@@ -1,18 +1,14 @@
 <div class="container">
-  <div  class="row">
-    <form class="col-8" (ngSubmit)="submit()">
-      <div class="form-group">
-        <label for="address">Account address</label>
-        <input type="address" class="form-control" name="address" id="address" [(ngModel)]="address" aria-describedby="addressHelp" placeholder="Enter Account Address">
-        <small id="addressHelp" class="form-text text-muted">Enter you Account Address(<strong>Not your Private Key</strong>)</small>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-
   <div class="row">
-    <p *ngFor="let voter of voters" >{{voter}}</p>
+    <div class="card col-4" *ngFor="let voter of registrations; let k = index">
+      <div class="card-body">
+        <h5 class="card-title">{{voter.name}}</h5>
+        <p class="card-text">Primary Key: {{voter.pk}}</p>
+        <p class="card-text">Account: {{voter.address}}</p>
+        <a href="#" class="btn btn-primary" (click)="verify($event, k)">Verify</a>
+        <a href="#" class="btn btn-danger" (click)="reject($event, k)">Reject</a>
+      </div>
+    </div>
   </div>
 
 </div>

@@ -3,6 +3,7 @@
     <label for="name">Name</label>
     <input type="text" class="form-control" id="name" name="name" [(ngModel)]="name" aria-describedby="nameHelp" placeholder="Enter your Name">
     <small id="nameHelp" class="form-text text-muted">Your Full Name.</small>
+    {{name}}
   </div>
 
   <div class="form-group">
@@ -45,8 +46,7 @@
         <div class="form-group">
           <textarea rows="4" (focus)="copyText($event)" [ngModel]="newAccount" name="textAreaKeyStore" class="form-control"
             readonly="true"></textarea>
-          <small id="textAreaKeyStoreHelp" class="form-text text-muted">You are advised to save this text in a convinient place(File,
-            keystore, etc.) which only you can access. You will need this and the password you provided in order to log in
+          <small id="textAreaKeyStoreHelp" class="form-text text-muted">You are advised to save this address in a convinient place which only you can access. You will need this and the password you provided in order to log in
             Later.</small>
         </div>
       </div>
@@ -54,10 +54,10 @@
     <div *ngSwitchDefault class="text-danger">Please Choose and Account Option From above.</div>
   </div>
 
-  <div class="form-group">
+  <!--<div class="form-group">
     <label for="publickey">Voter's Public key</label>
     <input type="text" class="form-control" id="publicKey" name="publicKey" [(ngModel)]="publicKey" placeholder="Voter's Public Key">
-  </div>
+  </div>-->
 
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>

@@ -7,7 +7,9 @@
     "test": "test"
   },
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "sqlite3": "^4.0.4",
     "truffle-contract": "^3.0.6"
   },
   "devDependencies": {

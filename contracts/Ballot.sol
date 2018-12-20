@@ -20,8 +20,10 @@ contract Ballot is Ownable, Voting {
         registerCandidate(1, 'Test Test', 'This is a test Description');
     }
 
-    function registerVoter(bytes16 newName, bytes32 newPK) public {
-        addVoter(msg.sender, newName, newPK);
+    function registerVoter(bytes16 newName, bytes32 newPK, address account) public onlyOwner returns (bool) {
+        bool success = addVoter(account, newName, newPK);
+        require(success, "Some error occured while adding voter.");
+        return true;
     }
 
     function registerIssue(bytes16 newName, string newDescription) public onlyOwner {
@@ -33,7 +35,7 @@ contract Ballot is Ownable, Voting {
     }
 
     // Override interface ERC1202 functions
-    function vote(uint option) public mustBeVoter(msg.sender) mustBeCandidate(option)
+    function vote(uint option) public mustBeCandidate(option)
                         returns (bool success) {
         if (hasVoted(msg.sender)) {
             return false;
